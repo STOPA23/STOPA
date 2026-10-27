@@ -380,6 +380,189 @@
   .lupa-item .btn { font-size:10px; padding:7px 8px; width:100%; }
   @media(max-width:560px) { .office-board { grid-template-columns:repeat(2,minmax(0,1fr)); } .lupa-shop { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
+
+
+  /* Úprava úvodnej obrazovky: kompaktnejší vrch bez zásahu do hry */
+  main { padding-top: 12px; }
+  #homeScreen > .card { padding: 15px 18px 18px; margin-bottom: 20px; }
+  #homeScreen .scene { height: 76px; margin-bottom: 10px; }
+  #homeScreen h1 { font-size: clamp(24px, 3.5vw, 31px); line-height: 1.12; letter-spacing: clamp(1px, .35vw, 4px); margin: 2px 0 7px; }
+  #homeScreen .case-stamp { margin-bottom: 6px; font-size: 9px; }
+  #homeScreen > .card > p { max-width: 720px; margin: 0 auto 8px; font-size: 13px; line-height: 1.45; }
+  #homeScreen .stats { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin: 12px 0; }
+  #homeScreen .stat { padding: 8px 5px; border-width: 3px; }
+  #homeScreen .stat b { font-size: 21px; line-height: 1.15; }
+  #homeScreen .stat span { display: block; font-size: 9px; line-height: 1.25; letter-spacing: .3px; }
+  #homeScreen .home-actions { gap: 8px; margin-top: 10px; }
+  #homeScreen .home-actions .btn { min-height: 44px; padding: 10px 12px; }
+  #homeScreen .daily-panel { margin-top: 10px; padding: 9px 12px; }
+  #homeScreen .daily-countdown { font-size: clamp(19px, 3vw, 26px); letter-spacing: 2px; margin: 3px 0; }
+  #homeScreen .daily-caption { font-size: 9px; letter-spacing: 1px; }
+  #homeScreen .extra-case-btn { margin-top: 6px; padding: 8px 12px; }
+  #homeScreen .home-tools { margin-top: 11px; padding-top: 10px; gap: 7px; }
+  @media(max-width:560px) {
+    main { padding: 8px 12px 42px; }
+    #homeScreen > .card { padding: 11px 10px 13px; margin-bottom: 15px; }
+    #homeScreen .scene { height: 58px; margin-bottom: 8px; }
+    #homeScreen h1 { font-size: clamp(20px, 6vw, 27px); letter-spacing: 1px; margin-bottom: 6px; }
+    #homeScreen > .card > p { font-size: 12px; line-height: 1.4; }
+    #homeScreen .stats { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; margin: 9px 0; }
+    #homeScreen .stat { padding: 7px 4px; }
+    #homeScreen .stat b { font-size: 19px; }
+    #homeScreen .stat span { font-size: 9px; }
+    #homeScreen .home-actions { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; margin-top: 8px; }
+    #homeScreen .home-actions .btn { min-height: 42px; padding: 8px 5px; font-size: 11px; }
+    #homeScreen .daily-panel { padding: 8px; }
+  }
+
+
+  /* Ostre skrátenie úvodnej obrazovky – menej vertikálneho priestoru */
+  main { padding-top: 5px !important; }
+  #homeScreen > .card { padding: 9px 14px 12px !important; margin-bottom: 12px !important; }
+  #homeScreen .scene { height: 32px !important; margin-bottom: 5px !important; border-width: 2px !important; }
+  #homeScreen h1 { font-size: clamp(21px, 2.6vw, 27px) !important; line-height: 1 !important; letter-spacing: 1px !important; margin: 0 0 4px !important; text-shadow: 2px 2px 0 #000 !important; }
+  #homeScreen .case-stamp { margin: 0 0 4px !important; padding: 1px 5px !important; font-size: 8px !important; }
+  #homeScreen > .card > p { font-size: 11px !important; line-height: 1.25 !important; margin: 0 auto 5px !important; }
+  #homeScreen .stats { gap: 5px !important; margin: 6px 0 !important; }
+  #homeScreen .stat { padding: 4px 3px !important; border-width: 2px !important; }
+  #homeScreen .stat b { font-size: 17px !important; line-height: 1 !important; }
+  #homeScreen .stat span { font-size: 8px !important; line-height: 1.1 !important; }
+  #homeScreen .home-actions { margin-top: 6px !important; gap: 6px !important; }
+  #homeScreen .home-actions .btn { min-height: 34px !important; padding: 6px 9px !important; font-size: 11px !important; }
+  #homeScreen .daily-panel { margin-top: 6px !important; padding: 5px 8px !important; }
+  #homeScreen .daily-countdown { font-size: 19px !important; letter-spacing: 1px !important; margin: 1px 0 !important; text-shadow: 1px 1px 0 #000 !important; }
+  #homeScreen .daily-caption { font-size: 8px !important; letter-spacing: 1px !important; }
+  #homeScreen .extra-case-btn { margin-top: 4px !important; padding: 5px 9px !important; font-size: 10px !important; }
+  #homeScreen .home-tools { margin-top: 6px !important; padding-top: 6px !important; gap: 6px !important; }
+  #homeScreen .home-tools .leaderboard-cta, #homeScreen .home-tools .office-cta { min-height: 38px !important; padding: 6px 8px !important; font-size: 11px !important; }
+  #homeScreen .home-tools .office-cta span { font-size: 15px !important; }
+  #homeScreen .home-tools-label { font-size: 8px !important; }
+  #homeScreen .medal-cta, #homeScreen .home-tools > #btnRules { padding: 6px 8px !important; font-size: 10px !important; margin-top: 0 !important; }
+  #homeScreen > .card > p.muted { margin-top: 6px !important; font-size: 9px !important; line-height: 1.2 !important; }
+  @media(max-width:560px) {
+    #homeScreen > .card { padding: 7px 8px 9px !important; }
+    #homeScreen .scene { height: 24px !important; margin-bottom: 4px !important; }
+    #homeScreen .stats { grid-template-columns: repeat(4,minmax(0,1fr)) !important; gap: 3px !important; }
+    #homeScreen .stat { padding: 4px 1px !important; }
+    #homeScreen .stat span { font-size: 7px !important; }
+    #homeScreen .home-actions { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+    #homeScreen .home-tools { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+    #homeScreen .home-tools .leaderboard-cta, #homeScreen .home-tools .office-cta { min-height: 36px !important; font-size: 9px !important; }
+  }
+
+  /* Domovska obrazovka – volnejsi papierovy podklad bez tvrdeho ramovania */
+  #homeScreen > .card {
+    background-color: #e5d3ab !important;
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0 31px, rgba(86,63,37,.10) 31px 32px),
+      linear-gradient(105deg, rgba(255,249,225,.58), rgba(211,187,142,.18)) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,.24) !important;
+    padding: 26px clamp(18px, 4vw, 42px) 30px !important;
+    margin: 26px auto 32px !important;
+    max-width: 900px;
+    color: #2b2118;
+  }
+  #homeScreen > .card::before, #homeScreen > .card::after { display:none !important; }
+  #homeScreen .scene {
+    height: 82px !important;
+    margin: 0 0 24px !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+  #homeScreen h1 {
+    font-size: clamp(25px, 3.5vw, 34px) !important;
+    line-height: 1.18 !important;
+    letter-spacing: clamp(1px, .25vw, 3px) !important;
+    margin: 0 0 13px !important;
+    color: #39291d !important;
+    text-shadow: 1px 2px 0 rgba(255,248,221,.8) !important;
+  }
+  #homeScreen .case-stamp { margin: 0 0 16px !important; }
+  #homeScreen > .card > p {
+    max-width: 700px;
+    margin: 0 auto 18px !important;
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+  }
+  #homeScreen .stats { gap: 12px !important; margin: 22px 0 24px !important; }
+  #homeScreen .stat {
+    padding: 14px 9px !important;
+    border: 0 !important;
+    border-bottom: 2px solid rgba(99,68,38,.3) !important;
+    background: rgba(255,248,224,.38) !important;
+    box-shadow: none !important;
+  }
+  #homeScreen .stat b { font-size: 25px !important; color: #81272a !important; text-shadow: none !important; }
+  #homeScreen .stat span { font-size: 10px !important; color: #67513a !important; line-height: 1.4 !important; }
+  #homeScreen .home-actions { gap: 14px !important; margin-top: 20px !important; }
+  #homeScreen .home-actions .btn { min-height: 52px !important; padding: 13px 15px !important; }
+  #homeScreen .daily-panel {
+    margin-top: 24px !important;
+    padding: 18px 14px !important;
+    border: 0 !important;
+    border-top: 1px solid rgba(99,68,38,.28) !important;
+    border-bottom: 1px solid rgba(99,68,38,.28) !important;
+    background: rgba(255,248,224,.24) !important;
+  }
+  #homeScreen .daily-countdown { font-size: clamp(25px, 4vw, 32px) !important; margin: 8px 0 !important; text-shadow: none !important; }
+  #homeScreen .extra-case-btn { margin-top: 14px !important; padding: 10px 14px !important; }
+  #homeScreen .home-tools { margin-top: 24px !important; padding-top: 20px !important; gap: 12px !important; }
+  #homeScreen > .card > p.muted { margin-top: 24px !important; font-size: 11px !important; line-height: 1.6 !important; }
+  @media(max-width:560px) {
+    main { padding: 8px 10px 36px !important; }
+    #homeScreen > .card { padding: 18px 14px 22px !important; margin-top: 14px !important; }
+    #homeScreen .scene { height: 64px !important; margin-bottom: 18px !important; }
+    #homeScreen h1 { font-size: clamp(22px, 6vw, 28px) !important; line-height: 1.2 !important; margin-bottom: 12px !important; }
+    #homeScreen > .card > p { font-size: 12px !important; line-height: 1.65 !important; margin-bottom: 16px !important; }
+    #homeScreen .stats { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 8px !important; margin: 18px 0 20px !important; }
+    #homeScreen .stat { padding: 11px 5px !important; }
+    #homeScreen .stat b { font-size: 22px !important; }
+    #homeScreen .stat span { font-size: 9px !important; }
+    #homeScreen .home-actions { gap: 9px !important; margin-top: 16px !important; }
+    #homeScreen .home-actions .btn { min-height: 48px !important; padding: 10px 6px !important; font-size: 11px !important; }
+    #homeScreen .daily-panel { margin-top: 20px !important; padding: 15px 8px !important; }
+    #homeScreen .home-tools { margin-top: 20px !important; padding-top: 16px !important; gap: 10px !important; }
+    #homeScreen .home-tools .leaderboard-cta, #homeScreen .home-tools .office-cta { min-height: 54px !important; font-size: 10px !important; }
+  }
+
+  /* Vrch bez samostatného banneru: lupa sa voľne pohybuje iba v textovej zóne. */
+  #homeScreen > .card { position: relative !important; overflow: hidden; }
+  #homeScreen .scene { display: none !important; }
+  #homeScreen .floating-lupa-layer {
+    position: absolute; z-index: 4; inset: 0 0 auto 0; height: 290px;
+    pointer-events: none; overflow: hidden; contain: layout paint;
+  }
+  #homeScreen .floating-lupa {
+    position: absolute; width: 36px; height: 36px; left: 0; top: 0;
+    overflow: visible; opacity: .9; filter: drop-shadow(2px 2px 1px rgba(35,24,13,.24));
+    animation: lupa-over-text 12s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes lupa-over-text {
+    0% { left: 7%; top: 48px; transform: rotate(-16deg); }
+    18% { left: 70%; top: 62px; transform: rotate(13deg); }
+    36% { left: 38%; top: 112px; transform: rotate(-9deg); }
+    54% { left: 82%; top: 166px; transform: rotate(17deg); }
+    72% { left: 15%; top: 188px; transform: rotate(-13deg); }
+    88% { left: 55%; top: 94px; transform: rotate(8deg); }
+    100% { left: 7%; top: 48px; transform: rotate(-16deg); }
+  }
+  @media (max-width: 560px) {
+    #homeScreen .floating-lupa-layer { height: 250px; }
+    #homeScreen .floating-lupa { width: 28px; height: 28px; opacity: .75; }
+    @keyframes lupa-over-text {
+      0% { left: 5%; top: 44px; transform: rotate(-16deg); }
+      20% { left: 72%; top: 54px; transform: rotate(13deg); }
+      40% { left: 30%; top: 108px; transform: rotate(-9deg); }
+      60% { left: 78%; top: 150px; transform: rotate(17deg); }
+      80% { left: 12%; top: 176px; transform: rotate(-13deg); }
+      100% { left: 5%; top: 44px; transform: rotate(-16deg); }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { #homeScreen .floating-lupa { animation: none; left: 68%; top: 70px; } }
+
 </style>
 </head>
 <body>
@@ -402,7 +585,8 @@
   <!-- DOMOV -->
   <section id="homeScreen" class="screen active">
     <div class="card">
-      <svg class="scene" id="scene" viewBox="0 0 160 40" preserveAspectRatio="none"></svg>
+      <svg class="scene" id="scene" viewBox="0 0 160 40" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="floating-lupa-layer" aria-hidden="true"><svg class="floating-lupa" viewBox="-15 -15 30 30"><g class="floating-lupa-art" stroke-linejoin="round"><path d="M3 3 L12 12" stroke="#080a0d" stroke-width="5.5" stroke-linecap="round"/><path d="M3 3 L12 12" stroke="#35343a" stroke-width="4.2" stroke-linecap="round"/><path d="M4 4 L11 11" stroke="#7d5140" stroke-width="2.1" stroke-linecap="round"/><path d="M5 5 L10 10" stroke="#b27b55" stroke-width=".7" stroke-linecap="round"/><circle cx="-1" cy="-1" r="8.1" fill="#10141b" stroke="#080a0d" stroke-width="1.5"/><circle cx="-1" cy="-1" r="7" fill="#aeb7c0" stroke="#e6e9e8" stroke-width="1"/><circle cx="-1" cy="-1" r="5.8" fill="#293d4c" stroke="#536d7b" stroke-width=".7"/><circle cx="-1" cy="-1" r="4.9" fill="#8ab5bd" fill-opacity=".62"/><path d="M-4 -3.8 L-2 -4.7 L-.5 -3.7" fill="none" stroke="#f5ffff" stroke-width="1.1" stroke-linecap="round"/><path d="M-4 1.5 L-1 0 L1.8 1.7" fill="none" stroke="#a9232b" stroke-width="1.4" stroke-linecap="square"/><path d="M-5.5 -5.5 L-3.8 -6.3" stroke="#ffffff" stroke-width=".8" stroke-linecap="round"/></g></svg></div>
       <h1>SI NA SPRÁVNEJ STOPE?</h1>
       <div class="case-stamp">SPIS 001 · DÔKAZNÝ MATERIÁL</div>
       <p>Každý deň dostanete nový záhadný prípad v dažďom zaliatom meste. Prečítajte si svedectvá, vyhodnoťte podozrivých a nájdite pravdu. Jeden prípad zvyčajne vyriešite za 2 až 5 minút.</p>
@@ -980,6 +1164,8 @@ function applySelectedLupa() {
   const lupa = LUPAS.find(x => x.id === save.selectedLupa) || LUPAS[0];
   const g = document.querySelector(".moving-lupa");
   if (g) g.style.filter = lupa.filter;
+  const floating = document.querySelector(".floating-lupa-art");
+  if (floating) floating.style.filter = lupa.filter;
 }
 function renderOffice() {
   const history = [...(save.history || [])].filter(x => x.won).sort((a,b) => (b.date||"").localeCompare(a.date||""));
