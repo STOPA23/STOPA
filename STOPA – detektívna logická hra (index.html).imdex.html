@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STOPA – denný detektívny prípad</title>
+<style>
+  :root {
+    --bg: #0a0d13;
+    --panel: #151b26;
+    --panel2: #1c2432;
+    --border: #4a5870;
+    --text: #e2dccb;
+    --muted: #7d8aa0;
+    --amber: #f2b33d;
+    --red: #d4493f;
+    --green: #6aa84f;
+    --black: #000;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: "Courier New", Courier, monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+    image-rendering: pixelated;
+    position: relative;
+  }
+  /* Dážď */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: repeating-linear-gradient(100deg, transparent 0 12px, rgba(150,180,220,.14) 12px 14px);
+    animation: rain .5s linear infinite; opacity: .55;
+  }
+  @keyframes rain { from { background-position: 0 0; } to { background-position: -28px 60px; } }
+  /* Hmla a pouličné svetlo dole */
+  body::after {
+    content: ""; position: fixed; inset: auto 0 0 0; height: 45vh; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 100%, rgba(242,179,61,.16) 0 18%, transparent 19%),
+      radial-gradient(ellipse at 80% 100%, rgba(242,179,61,.12) 0 16%, transparent 17%),
+      repeating-linear-gradient(0deg, rgba(120,140,170,.10) 0 8px, transparent 8px 16px);
+  }
+
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; background: #05070b; border-bottom: 4px solid #000;
+    box-shadow: 0 4px 0 var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .logo {
+    font-size: 26px; font-weight: 900; letter-spacing: 8px; color: var(--amber);
+    text-shadow: 3px 3px 0 #000; cursor: pointer;
+  }
+  .logo span { color: var(--text); }
+  .lives { font-size: 18px; letter-spacing: 3px; color: var(--red); text-shadow: 2px 2px 0 #000; }
+  .timer { font-variant-numeric: tabular-nums; color: var(--muted); margin-left: 12px; font-weight: bold; }
+
+  main { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 26px 16px 70px; }
+  .screen { display: none; }
+  .screen.active { display: block; animation: blink-in .3s steps(4) ; }
+  @keyframes blink-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .card {
+    background: var(--panel);
+    border: 4px solid #000;
+    box-shadow: 0 0 0 4px var(--border), 10px 10px 0 #000;
+    padding: 20px; margin-bottom: 30px; position: relative;
+  }
+  /* pixelový rám – rohy */
+  .card::before, .card::after {
+    content: ""; position: absolute; width: 8px; height: 8px; background: var(--amber);
+  }
+  .card::before { top: -8px; left: -8px; }
+  .card::after { bottom: -8px; right: -8px; }
+
+  h1 { font-size: 34px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 6px; color: var(--amber); text-shadow: 4px 4px 0 #000; }
+  h2 { font-size: 18px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 2px; color: var(--amber); text-shadow: 2px 2px 0 #000; }
+  h3 { font-size: 16px; margin-bottom: 4px; text-transform: uppercase; }
+  p { margin-bottom: 10px; }
+  .muted { color: var(--muted); font-size: 14px; }
+
+  /* Skyline (pixel scéna) */
+  .scene { width: 100%; height: 120px; display: block; margin-bottom: 16px; border: 4px solid #000; background: #070a10; }
+
+  .btn {
+    display: inline-block; cursor: pointer; font-family: inherit;
+    background: var(--panel2); color: var(--text);
+    border: 4px solid #000; padding: 10px 16px;
+    font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+    box-shadow: inset -4px -4px 0 #0008, inset 4px 4px 0 #3a4a62, 4px 4px 0 #000;
+    transition: none;
+  }
+  .btn:hover { color: var(--amber); }
+  .btn:active { transform: translate(4px, 4px); box-shadow: inset 4px 4px 0 #0008, 0 0 0 #000; }
+  .btn.primary { background: var(--amber); color: #111; box-shadow: inset -4px -4px 0 #8a5d10, inset 4px 4px 0 #ffd27a, 4px 4px 0 #000; }
+  .btn.primary:hover { color: #111; background: #ffc257; }
+  .btn.danger { color: var(--red); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 14px; margin: 20px 0; }
+  .stat { background: #0c1018; border: 4px solid #000; box-shadow: inset 0 0 0 2px var(--border); padding: 14px; text-align: center; }
+  .stat b { display: block; font-size: 26px; color: var(--amber); text-shadow: 2px 2px 0 #000; }
+  .stat span { font-size: 12px; text-transform: uppercase; color: var(--muted); }
+
+  .clues { display: grid; gap: 12px; }
+  .clue {
+    background: var(--panel2); border: 4px solid #000; border-left: 12px solid var(--amber);
+    padding: 12px 14px; cursor: pointer;
+    box-shadow: inset 0 0 0 2px #2a3446;
+  }
+  .clue:hover { background: #243044; }
+  .clue.read { border-left-color: var(--muted); }
+  .clue small { color: var(--muted); }
+
+  .suspects { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 16px; }
+  .suspect {
+    background: var(--panel2); border: 4px solid #000; padding: 14px;
+    box-shadow: inset 0 0 0 2px #2a3446;
+  }
+  .suspect.sus { box-shadow: inset 0 0 0 3px var(--red); }
+  .suspect.inn { box-shadow: inset 0 0 0 3px var(--green); opacity: .65; }
+  .sus-head { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+  .avatar { width: 64px; height: 64px; flex: 0 0 64px; border: 4px solid #000; background: #0c1018; }
+  .avatar svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; }
+  .verdict { display: flex; gap: 8px; margin-top: 12px; }
+  .verdict button {
+    flex: 1; padding: 8px; font-family: inherit; font-weight: 900; text-transform: uppercase; font-size: 12px;
+    border: 4px solid #000; background: #0c1018; color: var(--text); cursor: pointer;
+  }
+  .verdict button.on-sus { background: var(--red); color: #111; }
+  .verdict button.on-inn { background: var(--green); color: #111; }
+
+  .hint-box {
+    background: #2a2411; border: 4px dashed var(--amber); padding: 12px;
+    color: #ffe2a0; margin-top: 14px;
+  }
+
+  .modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,.8); display: none;
+    align-items: center; justify-content: center; padding: 16px; z-index: 50;
+  }
+  .modal.open { display: flex; }
+  .modal .box {
+    background: var(--panel); border: 4px solid #000; box-shadow: 0 0 0 4px var(--border), 10px 10px 0 #000;
+    padding: 24px; max-width: 580px; width: 100%; max-height: 90vh; overflow: auto;
+  }
+  .opt {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px;
+    border: 4px solid #000; background: #0c1018; margin-bottom: 10px; cursor: pointer;
+  }
+  .opt:hover { box-shadow: inset 0 0 0 2px var(--amber); }
+  .opt input { margin-top: 4px; accent-color: var(--amber); }
+  .opt.selected { box-shadow: inset 0 0 0 3px var(--amber); background: #2a2411; }
+
+  .result-title { font-size: 26px; font-weight: 900; margin-bottom: 8px; text-transform: uppercase; text-shadow: 3px 3px 0 #000; }
+  .win { color: var(--green); }
+  .lose { color: var(--red); }
+  .solution { background: #0c1018; border: 4px solid #000; padding: 14px; margin-top: 14px; }
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #05070b; border: 4px solid var(--amber); padding: 10px 18px;
+    display: none; z-index: 60; color: var(--amber); text-transform: uppercase; font-weight: bold;
+    box-shadow: 4px 4px 0 #000;
+  }
+  .toast.show { display: block; }
+  @media (max-width: 600px) { h1 { font-size: 24px; letter-spacing: 3px; } .logo { font-size: 20px; letter-spacing: 4px; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="logo" id="logoBtn">S<span>TOPA</span></div>
+  <div>
+    <span class="lives" id="livesBox"></span>
+    <span class="timer" id="timerBox"></span>
+  </div>
+</header>
+
+<main>
+  <!-- DOMOV -->
+  <section id="homeScreen" class="screen active">
+    <div class="card">
+      <svg class="scene" id="scene" viewBox="0 0 160 40" preserveAspectRatio="none"></svg>
+      <h1>STOPA</h1>
+      <p>Každý deň dostanete nový záhadný prípad v dažďom zaliatom meste. Prečítajte si svedectvá, vyhodnoťte podozrivých a nájdite pravdu. Jeden prípad zvyčajne vyriešite za 2 až 5 minút.</p>
+      <div class="stats">
+        <div class="stat"><b id="statSolved">0</b><span>vyriešené prípady</span></div>
+        <div class="stat"><b id="statStreak">0</b><span>denná séria</span></div>
+        <div class="stat"><b id="statBest">–</b><span>najlepšie skóre</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" id="btnDaily">Dnešný prípad</button>
+        <button class="btn" id="btnRandom">Náhodný prípad (tréning)</button>
+      </div>
+      <p class="muted" style="margin-top:18px;">Pravidlá: Označte podozrivých ako „Podozrivý“ alebo „Nevinný“. Kliknutím na dôkaz si ho prečítajte. Keď si budete istí, obviňte páchateľa a vyberte rozhodujúci dôkaz. Máte 3 životy – každá chyba jeden stratí.</p>
+    </div>
+  </section>
+
+  <!-- HRA -->
+  <section id="gameScreen" class="screen">
+    <div class="card">
+      <div class="muted" id="caseMeta"></div>
+      <h1 id="caseTitle"></h1>
+      <p id="caseStory"></p>
+    </div>
+
+    <div class="card">
+      <h2>Dôkazy <span class="muted" style="font-size:12px;">(kliknutím si ich prečítajte)</span></h2>
+      <div class="clues" id="cluesBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>Podozriví</h2>
+      <div class="suspects" id="suspectsBox"></div>
+    </div>
+
+    <div class="card">
+      <div class="btn-row">
+        <button class="btn" id="btnHint">Nápoveda (+30 s)</button>
+        <button class="btn primary" id="btnAccuse">Obviniť</button>
+        <button class="btn danger" id="btnGiveUp">Vzdať sa</button>
+      </div>
+      <div id="hintBox"></div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL: OBVINENIE -->
+<div class="modal" id="accuseModal">
+  <div class="box">
+    <h2>Obvinenie</h2>
+    <p class="muted">1. Vyberte páchateľa</p>
+    <div id="accuseSuspects" style="margin:8px 0 14px;"></div>
+    <p class="muted">2. Vyberte dôkaz, ktorý ho najpresvedčivejšie usvedčuje</p>
+    <div id="accuseClues" style="margin:8px 0 14px;"></div>
+    <div class="btn-row">
+      <button class="btn primary" id="btnSubmitAccuse">Potvrdiť obvinenie</button>
+      <button class="btn" id="btnCancelAccuse">Zrušiť</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: VÝSLEDOK -->
+<div class="modal" id="resultModal">
+  <div class="box" id="resultBox"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   STOPA – obsah prípadov (originálne príbehy)
+   ========================================================= */
+const CASES = [
+  {
+    id: "rukopis",
+    title: "Zmiznutý rukopis",
+    location: "Mestská knižnica, Košice",
+    story: "V noci pred aukciou zmizol vzácny rukopis zo 17. storočia z trezorového depozitára. Dvere sú zamknuté čipovou kartou, vonku nie je stopa po násilí. V budove boli v noci štyria ľudia.",
+    clues: [
+      { id: "c1", title: "Hodinky kurátorky", text: "Inteligentné hodinky Dany Lukáčovej zaznamenali jej pohyb: o 21:50 odišla z budovy a o 21:58 sedela v kaviarni cez ulicu." },
+      { id: "c2", title: "Batoh študenta", text: "V batohu študenta Filipa Horvátha našli farebné fotokópie strán rukopisu. Filip tvrdí, že ich potreboval na seminárnu prácu." },
+      { id: "c3", title: "Fotky z večere", text: "Reštaurátorka Lea Balážová bola o 20:00 až 23:30 na rodinnej večeri. Fotky s časovou pečiatkou ju potvrdzujú." },
+      { id: "c4", title: "Záznam čipovej karty", text: "Vstup do depozitára bol otvorený o 22:10 kartou patriacou správcovi budovy Petrovi Kollárovi. Karta nebola nahlásená ako stratená." },
+      { id: "c5", title: "Kúsok vosku", text: "Na podlahe pri trezore našli kúsok červeného pečatného vosku. Správca má v kancelárii rovnaký vosk na zapečatenie kľúčových skriniek." }
+    ],
+    suspects: [
+      { id: "s1", name: "Dana Lukáčová", role: "Kurátorka zbierky", statement: "Celý večer som pracovala na katalógu v kaviarni. Do depozitára som nevstúpila." },
+      { id: "s2", name: "Filip Horváth", role: "Študent dobrovoľník", statement: "Fotky som si spravil len pre prácu. Do trezoru som nikdy nemal prístup." },
+      { id: "s3", name: "Lea Balážová", role: "Reštaurátorka", statement: "Bola som na večeri. Nič o rukopise neviem." },
+      { id: "s4", name: "Peter Kollár", role: "Správca budovy", statement: "Kartu mám stále pri sebe. Večer som kontroloval kúrenie v suteréne." }
+    ],
+    culprit: "s4",
+    key: "c4",
+    hint: "Pozrite sa na to, kto mal kartu a v akom čase bol vstup do depozitára otvorený. Ostatní mali v tú chvíľu iné alibi.",
+    solution: "Páchateľom je správca Peter Kollár. Čipová karta otvorila depozitár o 22:10, keď ostatní potvrdení z alibi nemali prístup ani byť na mieste. Kúsok vosku z jeho kancelárie to len podporuje."
+  },
+  {
+    id: "elektrina",
+    title: "Výpadok prúdu v kaviarni",
+    location: "Kaviareň U Hodinára, Bratislava",
+    story: "Počas najväčšieho nápadu v sezóne zhasla celá kaviareň. Hlavný istič bol vypnutý ručne a na hodinu prišla o prúd aj chladiaca skriňa s koláčmi. Tesne pred výpadkom bolo v prevádzke štyrom ľuďom umožnené vstúpiť do technickej miestnosti.",
+    clues: [
+      { id: "c1", title: "Účtenka z kávy", text: "Barista Matej Kubík zaznamenal v pokladni objednávku v čase výpadku. Čas na účtenke je o 3 minúty neskôr ako výpadok." },
+      { id: "c2", title: "Kľúč na nástenke", text: "Kľúč od technickej miestnosti visel na háčiku vedľa baru. Majiteľka Ivana Šimová ho v deň výpadku ráno sama zavesila." },
+      { id: "c3", title: "Hudobný playlist", text: "Hudobník Tomáš Demeter mal naplánovanú hudbu na 19:30, no jeho zariadenie sa pripojilo k sieti kaviarne až po výpadku. Predtým bol v technickej miestnosti podľa kamery." },
+      { id: "c4", title: "Zápis v účtovnej knihe", text: "Účtovník Samuel Mihál pracoval v zadnej miestnosti a potvrdil, že o 18:40 počul kroky na chodbe, ale nevidel nikoho." },
+      { id: "c5", title: "Stopa prachu", text: "Na zvnútra zavretom ističi zostala stopa po bielom prachu z turbo čističa. Tento čistič používa len Tomáš na aparatúre." }
+    ],
+    suspects: [
+      { id: "s1", name: "Matej Kubík", role: "Barista", statement: "Stál som za pultom a robil kávy. Do technickej miestnosti nevstupujem." },
+      { id: "s2", name: "Ivana Šimová", role: "Majiteľka", statement: "Kľúč som zavesila ráno. Potom som odišla vybavovať faktúry." },
+      { id: "s3", name: "Tomáš Demeter", role: "Hudobník", statement: "Nastavoval som zvuk, ale do ističa som nešiel. Neviem, čo sa stalo." },
+      { id: "s4", name: "Samuel Mihál", role: "Účtovník", statement: "Pracoval som vzadu a nič som nevidel. Počul som kroky, to je všetko." }
+    ],
+    culprit: "s3",
+    key: "c5",
+    hint: "Zamerajte sa na to, kto pracoval s aparatúrou a čo mohol zanechať na ističi. Kľúč a kamera sú len kulisa.",
+    solution: "Páchateľom je hudobník Tomáš Demeter. Biely prach z čističa, ktorý používal len on, zostal na zvnútra zavretom ističi. Kamera ho zároveň zachytila v technickej miestnosti tesne pred výpadkom."
+  },
+  {
+    id: "posta",
+    title: "Nedoručený list",
+    location: "Poštový úrad, Žilina",
+    story: "Z uzamknutého poštového vaku zmizol list s hodnotným podpisom. Adresát čakal na zmluvu o dedičstve a dnes ráno oznámil, že list nedostal. Vak prešiel rukami štyroch zamestnancov.",
+    clues: [
+      { id: "c1", title: "Čas triedenia", text: "Triedenie vaku bolo podľa zoznamu medzi 14:00 a 15:00. Vaky boli zapečatené stužkou s číslom, ktoré sa zhodovalo s evidenciou." },
+      { id: "c2", title: "Rozpis zmien", text: "Vrátnička Ema Šulcová mala v daný deň voľno a do budovy sa vrátila len na chvíľu po obed kvôli dokumentom." },
+      { id: "c3", title: "Odtlačky na obálke", text: "Na obálke našli odtlačky. Jedny patria doručovateľovi Jánovi Ondrejkovi, ktorý vak prevzal, druhé nikomu neboli priradené." },
+      { id: "c4", title: "Záznam o zmene stužky", text: "Stužka vaku bola prestrihnutá a nahradená novou, ktorá má označenie z inej pobočky. Zamestnanci nemali oprávnenie na výmenu." },
+      { id: "c5", title: "Nákupný bloček", text: "Vedúci zmeny Robert Gál mal v tú hodinu v pošte nastavený ručný režim. Bloček z papierníctva na druhej strane mesta je z toho istého dňa o 14:20." }
+    ],
+    suspects: [
+      { id: "s1", name: "Ema Šulcová", role: "Vrátnička", statement: "Mala som voľno. Do triedenia som nevstúpila." },
+      { id: "s2", name: "Ján Ondrejko", role: "Doručovateľ", statement: "Vak som prevzal a odovzdal. Stužka bola v poriadku." },
+      { id: "s3", name: "Robert Gál", role: "Vedúci zmeny", statement: "Bol som na dôležitom hovore v kancelárii. Nikto ma nemohol vidieť, ale mal som tam byť." },
+      { id: "s4", name: "Lucia Hrušovská", role: "Triedička", statement: "Triedila som balíky v hale. Stužku som nikdy nemenila." }
+    ],
+    culprit: "s3",
+    key: "c5",
+    hint: "Hľadajte, kto sa v rozhodujúcu hodinu nachádzal mimo budovy, a kto mal oprávnenie vymeniť stužku.",
+    solution: "Páchateľom je vedúci zmeny Robert Gál. Bloček z papierníctva dokazuje, že bol v tú hodinu mimo pošty, a iba vedúci mal oprávnenie na výmenu stužky. Odtlačky doručovateľa boli len náhodné, keďže vak preberal bežne."
+  }
+];
+
+/* =========================================================
+   PIXEL GRAFIKA (generovaná v kóde, bez externých obrázkov)
+   ========================================================= */
+function hashStr(s) {
+  let h = 0;
+  for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h;
+}
+
+/* Pixelový portrét 8x8 – unikátny podľa mena */
+function avatarSVG(seed) {
+  const h = hashStr(seed);
+  const skin = ["#d9a57b", "#b5793f", "#8d5a36", "#f0c9a0"][h % 4];
+  const hair = ["#2b1d14", "#6b4a2a", "#c9a13b", "#1a1a1a", "#7a3b2e"][(h >> 3) % 5];
+  const coat = ["#3b4a5e", "#5a2f2f", "#2f4a3a", "#4a4a2f"][(h >> 6) % 4];
+  const hat = (h >> 9) % 2 === 0;
+  const r = (x, y, w, hh, c) => `<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="${c}"/>`;
+  let s = "";
+  s += r(0, 0, 8, 8, "#0c1018");
+  if (hat) s += r(1, 0, 6, 1, "#1b1f2a") + r(0, 1, 8, 1, "#1b1f2a");
+  else s += r(2, 0, 4, 1, hair) + r(1, 1, 6, 1, hair);
+  s += r(2, 2, 4, 3, skin);
+  s += r(2, 3, 1, 1, "#111") + r(5, 3, 1, 1, "#111");
+  s += r(1, 5, 6, 3, coat) + r(3, 5, 2, 1, "#e2dccb");
+  return `<svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+}
+
+/* Pixelová skyline pre domovskú obrazovku */
+function sceneSVG() {
+  let s = "";
+  const b = [[0,18,14],[14,10,22],[24,14,18],[38,6,26],[44,16,16],[60,12,20],[72,8,24],[80,18,14],[98,11,22],[109,15,18],[124,9,24],[133,13,20],[146,8,24]];
+  for (const [x, w, hgt] of b) {
+    s += `<rect x="${x}" y="${40 - hgt}" width="${w}" height="${hgt}" fill="#10151f"/>`;
+    for (let wy = 40 - hgt + 3; wy < 36; wy += 5)
+      for (let wx = x + 2; wx < x + w - 2; wx += 4)
+        if ((wx * 7 + wy * 3) % 5 === 0) s += `<rect x="${wx}" y="${wy}" width="1" height="1" fill="#f2b33d" opacity=".8"/>`;
+  }
+  return s;
+}
+document.getElementById("scene").innerHTML = sceneSVG();
+
+/* =========================================================
+   STAV HRY A ÚLOŽISKO (localStorage)
+   ========================================================= */
+const STORAGE_KEY = "stopa_save_v1";
+let save = loadSave();
+
+function loadSave() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (s) return s;
+  } catch (e) {}
+  return { solved: 0, streak: 0, lastDailyDate: null, dailySolvedDate: null, best: null };
+}
+function writeSave() { localStorage.setItem(STORAGE_KEY, JSON.stringify(save)); }
+
+let game = null;
+let timerInterval = null;
+
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+function dailyCaseIndex() {
+  const days = Math.floor(Date.now() / 86400000);
+  return days % CASES.length;
+}
+
+/* =========================================================
+   OVLÁDANIE OBRAZOVIEK
+   ========================================================= */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2200);
+}
+function fmtTime(sec) {
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+}
+function renderHome() {
+  document.getElementById("statSolved").textContent = save.solved;
+  document.getElementById("statStreak").textContent = save.streak;
+  document.getElementById("statBest").textContent = save.best !== null ? save.best : "–";
+  const btn = document.getElementById("btnDaily");
+  btn.textContent = save.dailySolvedDate === todayKey() ? "Dnešný prípad je vyriešený" : "Dnešný prípad";
+}
+
+/* =========================================================
+   SPUSTENIE PRÍPADU
+   ========================================================= */
+function startCase(index, isDaily) {
+  const c = CASES[index];
+  game = {
+    caseIndex: index,
+    isDaily,
+    lives: 3,
+    verdicts: {},
+    readClues: new Set(),
+    hintsUsed: 0,
+    wrongs: 0,
+    penaltySec: 0,
+    startedAt: Date.now(),
+    finished: false,
+    selectedSuspect: null,
+    selectedClue: null
+  };
+  document.getElementById("caseMeta").textContent =
+    (isDaily ? "Denný prípad" : "Tréning") + " · " + c.location;
+  document.getElementById("caseTitle").textContent = c.title;
+  document.getElementById("caseStory").textContent = c.story;
+  document.getElementById("hintBox").innerHTML = "";
+  renderClues();
+  renderSuspects();
+  renderLives();
+  startTimer();
+  showScreen("gameScreen");
+}
+
+function elapsedSec() {
+  if (!game) return 0;
+  return Math.floor((Date.now() - game.startedAt) / 1000) + game.penaltySec;
+}
+function startTimer() {
+  clearInterval(timerInterval);
+  const update = () => {
+    if (game && !game.finished) {
+      document.getElementById("timerBox").textContent = "⏱ " + fmtTime(elapsedSec());
+    }
+  };
+  update();
+  timerInterval = setInterval(update, 1000);
+}
+function stopTimer() { clearInterval(timerInterval); }
+
+function renderLives() {
+  document.getElementById("livesBox").textContent = "♥".repeat(game.lives) + "♡".repeat(3 - game.lives) + "  ";
+}
+
+function renderClues() {
+  const c = CASES[game.caseIndex];
+  document.getElementById("cluesBox").innerHTML = c.clues.map(cl => `
+    <div class="clue ${game.readClues.has(cl.id) ? "read" : ""}" data-clue="${cl.id}">
+      <h3>${cl.title} ${game.readClues.has(cl.id) ? "✓" : ""}</h3>
+      <p style="margin:0">${game.readClues.has(cl.id) ? cl.text : "<small>Kliknutím si prečítate dôkaz.</small>"}</p>
+    </div>`).join("");
+  document.querySelectorAll("#cluesBox .clue").forEach(el => {
+    el.addEventListener("click", () => {
+      game.readClues.add(el.dataset.clue);
+      renderClues();
+    });
+  });
+}
+
+function renderSuspects() {
+  const c = CASES[game.caseIndex];
+  document.getElementById("suspectsBox").innerHTML = c.suspects.map(s => {
+    const v = game.verdicts[s.id] || "";
+    return `
+    <div class="suspect ${v}" data-sus="${s.id}">
+      <div class="sus-head">
+        <div class="avatar">${avatarSVG(s.name)}</div>
+        <div><h3>${s.name}</h3><div class="muted">${s.role}</div></div>
+      </div>
+      <p style="font-size:14px;">„${s.statement}“</p>
+      <div class="verdict">
+        <button class="${v === "sus" ? "on-sus" : ""}" data-v="sus">Podozrivý</button>
+        <button class="${v === "inn" ? "on-inn" : ""}" data-v="inn">Nevinný</button>
+      </div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#suspectsBox .verdict button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const sid = btn.closest(".suspect").dataset.sus;
+      const val = btn.dataset.v;
+      game.verdicts[sid] = game.verdicts[sid] === val ? null : val;
+      renderSuspects();
+    });
+  });
+}
+
+/* Nápoveda: +30 s penalizácia */
+document.getElementById("btnHint").addEventListener("click", () => {
+  if (!game || game.finished) return;
+  const c = CASES[game.caseIndex];
+  if (game.hintsUsed === 0) {
+    game.hintsUsed++;
+    game.penaltySec += 30;
+    document.getElementById("hintBox").innerHTML = `<div class="hint-box">💡 ${c.hint}</div>`;
+    toast("Nápoveda použitá (+30 s)");
+  } else {
+    toast("Nápoveda je už použitá.");
+  }
+});
+
+/* Obvinenie */
+document.getElementById("btnAccuse").addEventListener("click", openAccuse);
+document.getElementById("btnCancelAccuse").addEventListener("click", () => {
+  document.getElementById("accuseModal").classList.remove("open");
+});
+
+function openAccuse() {
+  if (!game || game.finished) return;
+  const c = CASES[game.caseIndex];
+  document.getElementById("accuseSuspects").innerHTML = c.suspects.map(s => `
+    <label class="opt" data-group="s"><input type="radio" name="sus" value="${s.id}"><div><b>${s.name}</b><div class="muted">${s.role}</div></div></label>`).join("");
+  document.getElementById("accuseClues").innerHTML = c.clues.map(cl => `
+    <label class="opt" data-group="c"><input type="radio" name="clue" value="${cl.id}"><div><b>${cl.title}</b></div></label>`).join("");
+  document.querySelectorAll(".opt").forEach(el => {
+    el.addEventListener("click", () => {
+      el.querySelector("input").checked = true;
+      document.querySelectorAll(`.opt[data-group="${el.dataset.group}"]`).forEach(o => o.classList.remove("selected"));
+      el.classList.add("selected");
+    });
+  });
+  document.getElementById("accuseModal").classList.add("open");
+}
+
+document.getElementById("btnSubmitAccuse").addEventListener("click", () => {
+  const sus = document.querySelector('input[name="sus"]:checked');
+  const clue = document.querySelector('input[name="clue"]:checked');
+  if (!sus || !clue) { toast("Vyberte podozrivého aj dôkaz."); return; }
+  document.getElementById("accuseModal").classList.remove("open");
+  const c = CASES[game.caseIndex];
+  if (sus.value === c.culprit && clue.value === c.key) {
+    finishGame(true);
+  } else {
+    game.wrongs++;
+    game.lives--;
+    renderLives();
+    if (game.lives <= 0) {
+      finishGame(false);
+    } else {
+      toast(sus.value !== c.culprit
+        ? "Nesprávny podozrivý. Strácate život."
+        : "Podozrivý je správny, ale dôkaz nie. Strácate život.");
+    }
+  }
+});
+
+document.getElementById("btnGiveUp").addEventListener("click", () => {
+  if (game && !game.finished && confirm("Naozaj sa chcete vzdať?")) finishGame(false);
+});
+
+/* =========================================================
+   KONIEC PRÍPADU A SKÓRE
+   ========================================================= */
+function calcScore() {
+  const sec = elapsedSec();
+  const score = 1000 - Math.floor(sec / 2) - game.hintsUsed * 100 - game.wrongs * 150;
+  return Math.max(100, score);
+}
+
+function finishGame(won) {
+  game.finished = true;
+  stopTimer();
+  const c = CASES[game.caseIndex];
+  const culpritName = c.suspects.find(s => s.id === c.culprit).name;
+  const keyTitle = c.clues.find(cl => cl.id === c.key).title;
+  let html;
+
+  if (won) {
+    const score = calcScore();
+    save.solved++;
+    if (game.isDaily) {
+      const today = todayKey();
+      if (save.dailySolvedDate !== today) {
+        const yesterday = new Date(Date.now() - 86400000);
+        const yKey = yesterday.getFullYear() + "-" + (yesterday.getMonth() + 1) + "-" + yesterday.getDate();
+        save.streak = (save.lastDailyDate === yKey) ? save.streak + 1 : 1;
+        save.dailySolvedDate = today;
+        save.lastDailyDate = today;
+      }
+    }
+    if (save.best === null || score > save.best) save.best = score;
+    writeSave();
+    html = `
+      <div class="result-title win">Prípad vyriešený!</div>
+      <p>Skóre: <b>${score}</b> · Čas: ${fmtTime(elapsedSec())} · Nápovedy: ${game.hintsUsed} · Chyby: ${game.wrongs}</p>`;
+  } else {
+    writeSave();
+    html = `
+      <div class="result-title lose">Prípad sa nepodarilo vyriešiť</div>
+      <p>Pravdu sa nepodarilo odhaliť. Skúste to znova – každý prípad je iný.</p>`;
+  }
+
+  html += `
+    <div class="solution">
+      <h3>Riešenie</h3>
+      <p><b>Páchateľ:</b> ${culpritName}</p>
+      <p><b>Rozhodujúci dôkaz:</b> ${keyTitle}</p>
+      <p>${c.solution}</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="btnNewCase">Ďalší prípad</button>
+      <button class="btn" id="btnHome">Domov</button>
+    </div>`;
+  document.getElementById("resultBox").innerHTML = html;
+  document.getElementById("resultModal").classList.add("open");
+  document.getElementById("btnNewCase").addEventListener("click", () => {
+    document.getElementById("resultModal").classList.remove("open");
+    startCase(Math.floor(Math.random() * CASES.length), false);
+  });
+  document.getElementById("btnHome").addEventListener("click", () => {
+    document.getElementById("resultModal").classList.remove("open");
+    renderHome();
+    showScreen("homeScreen");
+  });
+  if (!won) document.getElementById("timerBox").textContent = "";
+}
+
+/* =========================================================
+   TLAČIDLÁ DOMOV
+   ========================================================= */
+document.getElementById("btnDaily").addEventListener("click", () => {
+  if (save.dailySolvedDate === todayKey()) {
+    toast("Dnešný prípad ste už vyriešili. Skúste náhodný prípad.");
+    return;
+  }
+  startCase(dailyCaseIndex(), true);
+});
+document.getElementById("btnRandom").addEventListener("click", () => {
+  startCase(Math.floor(Math.random() * CASES.length), false);
+});
+document.getElementById("logoBtn").addEventListener("click", () => {
+  if (game && !game.finished && !confirm("Opustiť prípad? Postup sa nebude počítať.")) return;
+  stopTimer();
+  document.getElementById("timerBox").textContent = "";
+  document.getElementById("livesBox").textContent = "";
+  renderHome();
+  showScreen("homeScreen");
+});
+
+renderHome();
+</script>
+</body>
+</html>
